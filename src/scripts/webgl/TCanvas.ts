@@ -28,7 +28,6 @@ export class TCanvas {
       this.init()
       this.createLights()
       this.createObjects()
-      this.gsapAnimation()
       gl.requestAnimationFrame(this.anime)
     })
   }
@@ -78,6 +77,7 @@ export class TCanvas {
   }
 
   private createObjects() {
+    // geometryとmaterialは共通で使う
     const tailGeometry = new THREE.BoxGeometry(this.tailParams.width, this.tailParams.height, this.tailParams.depth)
     const tailBlackMaterial = new THREE.MeshStandardMaterial({ color: '#080808' })
     const tailGoldMaterial = new THREE.MeshStandardMaterial({
@@ -88,16 +88,22 @@ export class TCanvas {
       roughness: 0.3,
     })
 
+    // 尻尾を20コ生成する
     for (let i = 0; i < 20; i++) {
       this.createBoxTail(i, tailGeometry, tailBlackMaterial, tailGoldMaterial)
     }
 
+    // 尻尾をまとめたグループを追加する
     gl.scene.add(this.tailes)
   }
 
   private createBoxTail(num: number, geometry: THREE.BoxGeometry, black: THREE.MeshStandardMaterial, gold: THREE.MeshStandardMaterial) {
+    // 1本の尻尾は、+zを基準に作成する。使いたい mesh.lookAt 関数が、+z面がどこを向くかを定義しているため。
+    // 最後にランダムな回転軸に対してランダムな回転をさせる。
+
     const { amount, gap, depth: thickness } = this.tailParams
 
+    // Boxの位置の計算
     const calcPosition = (i: number) => {
       let scale = 1 - i / amount
       let x = Math.sin(Math.PI * 2 * (i / amount)) * scale
@@ -119,11 +125,13 @@ export class TCanvas {
       const pos = calcPosition(i)
       mesh.position.set(pos.x, pos.y, pos.z)
       mesh.scale.set(1 - i / amount, 1 - i / amount, 1)
+      // 向きを前のBoxに向かせる
       mesh.lookAt(prev.x, prev.y, prev.z)
       prev = pos
       group.add(mesh)
     }
 
+    // 1本の尻尾をランダムに回転させる
     this.calcTailRotation(group)
   }
 
@@ -142,13 +150,11 @@ export class TCanvas {
       tl.set(tail.children, { visible: true, stagger: 0.05 }, '<10%')
     })
 
-    tl.eventCallback('onComplete', () => {
-      const tl = gsap.timeline({ delay: 5 })
-      this.tailes.children.forEach((tail) => {
-        tl.set(tail.children, { visible: false, stagger: 0.05 }, '<5%')
-      })
-      tl.set(this, { runTailAnimation: false, delay: 1 })
+    this.tailes.children.forEach((tail, i) => {
+      tl.set(tail.children, { visible: false, stagger: 0.05, delay: i === 0 ? 5 : 0 }, '<5%')
     })
+
+    tl.set(this, { runTailAnimation: false, delay: 1 })
   }
 
   private anime = () => {
