@@ -7,7 +7,7 @@ import GUI from 'lil-gui'
 
 export class TCanvas {
   private lights = new THREE.Group()
-  private tailes = new THREE.Group()
+  private tails = new THREE.Group()
   private runTailAnimation = false
   private gui = new GUI()
 
@@ -94,7 +94,7 @@ export class TCanvas {
     }
 
     // 尻尾をまとめたグループを追加する
-    gl.scene.add(this.tailes)
+    gl.scene.add(this.tails)
   }
 
   private createBoxTail(num: number, geometry: THREE.BoxGeometry, black: THREE.MeshStandardMaterial, gold: THREE.MeshStandardMaterial) {
@@ -115,7 +115,7 @@ export class TCanvas {
     let prev = calcPosition(-1)
 
     const group = new THREE.Group()
-    this.tailes.add(group)
+    this.tails.add(group)
 
     for (let i = 0; i < amount; i++) {
       const mesh = new THREE.Mesh(geometry, num % 4 === 0 ? gold : black)
@@ -146,11 +146,11 @@ export class TCanvas {
     this.runTailAnimation = true
 
     const tl = gsap.timeline()
-    this.tailes.children.forEach((tail) => {
+    this.tails.children.forEach((tail) => {
       tl.set(tail.children, { visible: true, stagger: 0.05 }, '<10%')
     })
 
-    this.tailes.children.forEach((tail, i) => {
+    this.tails.children.forEach((tail, i) => {
       tl.set(tail.children, { visible: false, stagger: 0.05, delay: i === 0 ? 5 : 0 }, '<5%')
     })
 
@@ -161,7 +161,7 @@ export class TCanvas {
     this.lights.quaternion.copy(gl.camera.quaternion)
 
     if (!this.runTailAnimation) {
-      this.tailes.children.forEach((tail) => this.calcTailRotation(tail))
+      this.tails.children.forEach((tail) => this.calcTailRotation(tail))
       this.gsapAnimation()
     }
 
