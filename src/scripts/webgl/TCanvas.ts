@@ -35,7 +35,7 @@ export class TCanvas {
   private init() {
     gl.setup(this.container)
     gl.scene.background = new THREE.Color('#0a0a0a')
-    gl.camera.position.set(0, 0, 15)
+    gl.camera.position.set(0, 0, 18)
 
     controls.primitive.enablePan = false
 
